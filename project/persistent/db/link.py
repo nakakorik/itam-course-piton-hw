@@ -22,13 +22,14 @@ class Link(Base):
     real_link = Column(Text, nullable = False)
 
 
-class Link_Usage(Base):
-    __tablename__ = "link_usage"
+class LinkUsage(Base):
+    __tablename__ = "LinkUsage"
 
     id = Column(Text, default = _uuid4_as_str, primary_key = True)
-    usedlink_id = Column(Text, nullable = False)
+    used_link_id = Column(Text, nullable = False)
     user_agent = Column(Text, nullable = False)
     created_at = Column(DateTime(timezone=True), default = utcnow, nullable = False)
     short_link = Column(Text, nullable = False)
+    ip = Column(Text, nullable = False)
 
 

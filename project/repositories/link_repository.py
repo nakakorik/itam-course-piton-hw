@@ -1,6 +1,7 @@
 from infrastructure.db_connections import create_all_tables, sqlite_connection
-from persistent.db.link import Link, Link_Usage
+from persistent.db.link import Link, LinkUsage
 from sqlalchemy import insert, select
+from datetime import datetime
 
 class LinkRepository:
     def __init__(self):
@@ -15,9 +16,9 @@ class LinkRepository:
             await session.commit()
 
     
-    async def put_link_usage(self,usedLink_id, short_link, user_agent,created_at ) -> None:
+    async def put_link_usage(self,used_Link_id:str, short_link:str, user_agent:str,created_at:datetime, ip:str) -> None:
 
-        stmp = insert(Link_Usage).values( {"usedlink_id":usedLink_id ,"short_link": short_link, "user_agent": user_agent, "created_at": created_at} ) 
+        stmp = insert(LinkUsage).values( {"used_link_id":used_Link_id ,"short_link": short_link, "user_agent": user_agent, "created_at": created_at, "ip": ip} ) 
 
         async with self._sessionmaker() as session:
             await session.execute(stmp)
@@ -35,9 +36,9 @@ class LinkRepository:
 
         return row[0]
     
-    async def get_linkUsage_staticstic(self,short_link,page:int,page_size:int)->list[Link_Usage]:#Link_Usage:
+    async def get_linkUsage_staticstic(self,short_link:str, page:int, page_size:int)->list[LinkUsage]:#LinkUsage:
 
-        stmp = select(Link_Usage).where(Link_Usage.short_link == short_link).order_by(Link_Usage.created_at.desc() ).offset(page).limit(page_size)
+        stmp = select(LinkUsage).where(LinkUsage.short_link == short_link).order_by(LinkUsage.created_at.desc() ).offset( (page-1) *page_size).limit(page_size)
 
         async with self._sessionmaker() as session:
            resp = await session.execute(stmp)

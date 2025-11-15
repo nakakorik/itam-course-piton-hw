@@ -53,7 +53,7 @@ def create_app() -> FastAPI:
     @app.get("/{link}")
     async def get_link(link:str, request:Request)-> Response:
         
-        long_link = await link_service.get_real_link(link,request.headers.get('user-agent'))
+        long_link = await link_service.get_real_link(short_link=link,user_agent=request.headers.get('user-agent'),ip=request.client.host)
         
         if long_link is None: raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="link not found ")
 
@@ -61,16 +61,15 @@ def create_app() -> FastAPI:
             status_code=status.HTTP_301_MOVED_PERMANENTLY,
             headers={"Location": long_link}
             )
+    
+
+
     @app.get("/{link}/statistics")
-    async def get_linkUsage(link:str, page: int = 0 , page_size:int = 0):
-        
-        #long_link = await link_service.get_real_link(link,request.headers.get('user-agent'))
-        
-        
-        #if long_link is None: raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="link not found ")
+    async def get_linkUsage(link:str, page: int = 0 , page_size:int = 10):
+
         link_stats = await link_service.get_linkUsage_statistick(short_link = link, page=page, page_size=page_size)
         if link_stats is None: raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Link usage Statistics not found")
-        #logger.debug(f'{link_stats}')
+
         
         return link_stats
     

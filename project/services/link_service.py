@@ -21,20 +21,23 @@ class LinkService:
 
         return short_link
         
-    async def get_real_link(self, short_link:str, user_agent:str) -> str | None :
+    async def get_real_link(self, short_link:str, user_agent:str,ip:str) -> str | None :
         link = await self._link_repository.get_link(short_link=short_link)
         if link is None: return None
 
-        await self._link_repository.put_link_usage(usedLink_id = link.id, user_agent = user_agent, created_at = utcnow(), short_link = link.short_link) 
+        await self._link_repository.put_link_usage(used_Link_id = link.id, user_agent = user_agent, created_at = utcnow(), short_link = link.short_link,ip=ip) 
 
         return str(link.real_link)
+    
+
+
     async def get_linkUsage_statistick(self, short_link:str, page:int, page_size:int) -> list[dict[str: any]] | None :
         link_rows = await self._link_repository.get_linkUsage_staticstic(short_link=short_link,page=page,page_size=page_size)
         if link_rows is None: return None
 
         link_stats: list[dict[str: any]] = []
         for row in link_rows:
-            link_stats.append( {"Used Link Id": row.usedlink_id, "User Agent": row.user_agent, "Created at": str(row.created_at)} )
+            link_stats.append( {"Used Link Id": row.used_link_id, "User Agent": row.user_agent, "Created at": str(row.created_at), "IP": row.ip} )
 
         return link_stats
 
