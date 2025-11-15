@@ -4,11 +4,11 @@ from services.link_service import LinkService
 from loguru import logger
 import time
 from typing import Callable, Awaitable
-from fastapi import Request, Response
+from fastapi import Request, Response, Header
 from fastapi.exception_handlers import http_exception_handler
+import json
 
 
-#text
 
 class linkRequest(BaseModel):
     link:str
@@ -42,22 +42,37 @@ def create_app() -> FastAPI:
         return response
 
     @app.post("/link")
-    def create_link(payload: linkRequest) -> linkResponce:
+    async def create_link(payload: linkRequest) -> linkResponce:
 
-        short_link = link_service.create_link(payload.link)
+        short_link = await link_service.create_link(payload.link)
+
         if short_link is None: raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,detail="invalid link ")
         return linkResponce(short_link=f'http://localhost:8000/{short_link}')
     
 
     @app.get("/{link}")
-    def get_link(link:str)-> Response:
-
-        long_link = link_service.get_link(link)
+    async def get_link(link:str, request:Request)-> Response:
+        
+        long_link = await link_service.get_real_link(short_link=link,user_agent=request.headers.get('user-agent'),ip=request.client.host)
         
         if long_link is None: raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="link not found ")
 
         return Response(
             status_code=status.HTTP_301_MOVED_PERMANENTLY,
-            headers={"location": long_link}
+            headers={"Location": long_link}
             )
+    
+
+
+    @app.get("/{link}/statistics")
+    async def get_linkUsage(link:str, page: int = 0 , page_size:int = 10):
+
+        link_stats = await link_service.get_linkUsage_statistick(short_link = link, page=page, page_size=page_size)
+        if link_stats is None: raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Link usage Statistics not found")
+
+        
+        return link_stats
+    
+    
+
     return app 
