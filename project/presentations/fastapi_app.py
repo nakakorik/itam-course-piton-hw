@@ -7,7 +7,7 @@ from typing import Callable, Awaitable
 from fastapi import Request, Response, Header
 from fastapi.exception_handlers import http_exception_handler
 import json
-
+from settings.settings import settings
 
 
 class linkRequest(BaseModel):
@@ -47,7 +47,8 @@ def create_app() -> FastAPI:
         short_link = await link_service.create_link(payload.link)
 
         if short_link is None: raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,detail="invalid link ")
-        return linkResponce(short_link=f'http://localhost:8000/{short_link}')
+        
+        return linkResponce(short_link=f'http://{settings.server.host}:8000/{short_link}')
     
 
     @app.get("/{link}")
