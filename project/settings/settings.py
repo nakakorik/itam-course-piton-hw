@@ -22,6 +22,7 @@ class Server(BaseModel):
 class _Settings(BaseSettings):
     pg: Postgres = Postgres()
     uvicorn: Uvicorn = Uvicorn()
+    server:Server = Server()
 
     model_config = SettingsConfigDict(env_file=".env", env_prefix="APP_", env_nested_delimiter="__")
 
