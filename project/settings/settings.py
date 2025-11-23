@@ -15,6 +15,9 @@ class Uvicorn(BaseModel):
     host: str = "0.0.0.0"
     port: int = 8000
 
+class Server(BaseModel):
+    host: str = "51.250.99.6"
+
 
 class _Settings(BaseSettings):
     pg: Postgres = Postgres()
