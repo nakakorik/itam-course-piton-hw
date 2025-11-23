@@ -1,11 +1,11 @@
-from infrastructure.db_connections import create_all_tables, sqlite_connection
+from infrastructure.db_connections import create_all_tables, connection
 from persistent.db.link import Link, LinkUsage
 from sqlalchemy import insert, select
 from datetime import datetime
 
 class LinkRepository:
     def __init__(self):
-        self._sessionmaker = sqlite_connection()
+        self._sessionmaker = connection()
         create_all_tables()
 
     async def create_link(self,real_link, short_link) -> None:
